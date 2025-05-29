@@ -1,8 +1,11 @@
 import { GetStaticProps } from 'next';
+import Layout from '../components/layout/Layout';  // Add this import
 import { siteSettings } from '../data/settings';
 import { getAllPosts } from '../lib/posts';
 import { getAllProjects } from '../lib/projects';
+import { get } from 'http';
 
+// Keep your existing interface
 interface HomeProps {
   postsCount: number;
   projectsCount: number;
@@ -20,8 +23,8 @@ interface HomeProps {
 
 export default function Home({ postsCount, projectsCount, samplePosts, sampleProjects }: HomeProps) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="text-center max-w-4xl mx-auto p-8">
+    <Layout>  {/* Wrap everything in Layout */}
+      <div className="text-center max-w-4xl mx-auto">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
           {siteSettings.title}
         </h1>
@@ -71,26 +74,27 @@ export default function Home({ postsCount, projectsCount, samplePosts, samplePro
           </div>
         )}
       </div>
-    </div>
+    </Layout>  
   );
 }
 
+// Keep your existing getStaticProps exactly as is
 export const getStaticProps: GetStaticProps = async () => {
   try {
     const posts = getAllPosts();
     const projects = getAllProjects();
     
-    // Only pass serializable data
+    // Ensure dates are strings for JSON serialization
     const samplePosts = posts.slice(0, 2).map(post => ({
       title: post.title,
       slug: post.slug,
-      date: typeof post.date === 'string' ? post.date : post.date.toString()
+      date: String(post.date) // Convert any date to string
     }));
     
     const sampleProjects = projects.slice(0, 2).map(project => ({
       title: project.title,
       slug: project.slug,
-      date: typeof project.date === 'string' ? project.date : project.date.toString()
+      date: String(project.date) // Convert any date to string
     }));
     
     return {
